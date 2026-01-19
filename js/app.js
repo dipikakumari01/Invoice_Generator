@@ -167,10 +167,7 @@ function initializeSampleData() {
     }
 }
 
-if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', () => {
-        initializeSampleData();
-    });
+
     if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', () => {
         initializeSampleData();
@@ -213,4 +210,3 @@ if (typeof window !== 'undefined') {
     });
 }
 
-}
