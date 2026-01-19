@@ -6,9 +6,9 @@ function getShopSettings() {
 
     return {
         shopName: 'Mahalaxmi Jewellers',
-        shopAddress: '123, MG Road, Bangalore - 560001, Karnataka, India',
         shopEmail: 'info@mahalaxmijewellers.com',
         gstin: '29AAAAA0000A1Z5',
+        defaultBranch: 'branch1',
         goldRate: 6500,
         silverRate: 75,
         purityOptions: ['24K', '22K', '18K', '999', '925'],
@@ -171,42 +171,6 @@ function initializeSampleData() {
     if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', () => {
         initializeSampleData();
-
-        // 🔹 Admin settings save handler
-        const adminForm = document.getElementById('adminForm');
-        if (adminForm) {
-            const settings = getShopSettings();
-
-            document.getElementById('shopName').value = settings.shopName || '';
-            document.getElementById('shopAddress').value = settings.shopAddress || '';
-            document.getElementById('shopEmail').value = settings.shopEmail || '';
-            document.getElementById('gstin').value = settings.gstin || '';
-            document.getElementById('goldRate').value = settings.goldRate || '';
-            document.getElementById('silverRate').value = settings.silverRate || '';
-            document.getElementById('makingChargeType').value = settings.makingChargeType || 'per_gram';
-            document.getElementById('makingChargeValue').value = settings.makingChargeValue || '';
-            document.getElementById('gstPercentage').value = settings.gstPercentage || 3;
-
-            adminForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const updatedSettings = {
-                    shopName: document.getElementById('shopName').value.trim(),
-                    shopAddress: document.getElementById('shopAddress').value.trim(),
-                    shopEmail: document.getElementById('shopEmail').value.trim(),
-                    gstin: document.getElementById('gstin').value.trim(),
-                    goldRate: parseFloat(document.getElementById('goldRate').value) || 0,
-                    silverRate: parseFloat(document.getElementById('silverRate').value) || 0,
-                    purityOptions: ['24K', '22K', '18K', '999', '925'],
-                    makingChargeType: document.getElementById('makingChargeType').value,
-                    makingChargeValue: parseFloat(document.getElementById('makingChargeValue').value) || 0,
-                    gstPercentage: parseFloat(document.getElementById('gstPercentage').value) || 3
-                };
-
-                saveShopSettings(updatedSettings);
-                alert('✅ Settings saved successfully');
-            });
-        }
     });
 }
 
