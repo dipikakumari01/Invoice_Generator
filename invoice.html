@@ -78,6 +78,21 @@
                         <span>Grand Total:</span>
                         <span id="grandTotalDisplay">₹0.00</span>
                     </div>
+
+                    <div class="summary-row">
+                        <span>Advance Paid:</span>
+                        <input type="number" id="advanceAmount" value="0" min="0">
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Return Amount:</span>
+                        <input type="number" id="returnAmount" value="0" min="0">
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Net Payable:</span>
+                        <span id="netPayableDisplay">₹0.00</span>
+                    </div>
                 </div>
 
                 <div class="form-actions">
@@ -127,7 +142,6 @@
                     <th>S.No</th>
                     <th>Item Description</th>
                     <th>Metal/Purity</th>
-                    <th>Gross Wt (g)</th>
                     <th>Net Wt (g)</th>
                     <th>Rate (₹/g)</th>
                     <th>Making (₹)</th>
@@ -158,6 +172,21 @@
                     <span>Grand Total:</span>
                     <span id="print-grandTotal"></span>
                 </div>
+                <div class="total-row">
+                    <span>Advance Paid:</span>
+                    <span id="print-advance"></span>
+                </div>
+
+                <div class="total-row">
+                    <span>Return Amount:</span>
+                    <span id="print-return"></span>
+                </div>
+
+                <div class="total-row grand-total">
+                    <span>Net Payable:</span>
+                    <span id="print-netPayable"></span>
+                </div>
+
             </div>
         </div>
         <div class="print-buttons no-print">
@@ -175,7 +204,6 @@
         const itemsContainer = document.getElementById('itemsContainer');
         const addItemBtn = document.getElementById('addItemBtn');
         let itemCount = 0;
-        let items = [];
 
         const settings = getShopSettings();
 
@@ -228,16 +256,12 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Gross Weight (g) *</label>
-                        <input type="number" class="item-gross-weight" step="0.001" min="0" required>
-                    </div>
-                    <div class="form-group">
                         <label>Net Weight (g) *</label>
                         <input type="number" class="item-net-weight" step="0.001" min="0" required>
                     </div>
                     <div class="form-group">
                         <label>Rate (₹/g) *</label>
-                        <input type="number" class="item-rate" step="0.01" min="0" required readonly>
+                        <input type="number" class="item-rate" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
                         <label>Making Charges (₹) *</label>
@@ -260,12 +284,7 @@
 
             metalSelect.addEventListener('change', () => {
                 updatePurityOptions(metalSelect, puritySelect);
-                updateRate(metalSelect, puritySelect, rateInput);
-                updateItemTotal(itemRow);
-            });
-
-            puritySelect.addEventListener('change', () => {
-                updateRate(metalSelect, puritySelect, rateInput);
+                updateRate(metalSelect, null, rateInput);
                 updateItemTotal(itemRow);
             });
 
@@ -294,19 +313,15 @@
             });
         }
 
-        function updateRate(metalSelect, puritySelect, rateInput) {
-            const metalType = metalSelect.value;
-            let baseRate = 0;
-
-            if (metalType === 'Gold') {
-                baseRate = settings.goldRate || 0;
-            } else if (metalType === 'Silver') {
-                baseRate = settings.silverRate || 0;
+        function updateRate(metalSelect, rateInput) {
+            if (metalSelect.value === 'Gold') {
+                rateInput.value = settings.goldRate.toFixed(2);
+            } else if (metalSelect.value === 'Silver') {
+                rateInput.value = settings.silverRate.toFixed(2);
+            } else {
+                rateInput.value = '';
             }
-
-            rateInput.value = baseRate.toFixed(2);
-        }
-
+        }   
         function updateDefaultMaking(netWeightInput, makingInput, rateInput) {
             if (makingInput.value) return;
 
@@ -346,16 +361,23 @@
                 subtotal += (netWeight * rate) + making;
             });
 
-            const gstRate = 3; // Fixed 3% GST
+            const gstRate = 3;
             const cgst = (subtotal * (gstRate / 2)) / 100;
             const sgst = (subtotal * (gstRate / 2)) / 100;
             const grandTotal = subtotal + cgst + sgst;
+
+            const advance = parseFloat(document.getElementById('advanceAmount')?.value) || 0;
+            const returned = parseFloat(document.getElementById('returnAmount')?.value) || 0;
+
+            const netPayable = grandTotal - advance + returned;
 
             document.getElementById('subtotalDisplay').textContent = '₹' + subtotal.toFixed(2);
             document.getElementById('cgstDisplay').textContent = '₹' + cgst.toFixed(2);
             document.getElementById('sgstDisplay').textContent = '₹' + sgst.toFixed(2);
             document.getElementById('grandTotalDisplay').textContent = '₹' + grandTotal.toFixed(2);
+            document.getElementById('netPayableDisplay').textContent = '₹' + netPayable.toFixed(2);
         }
+
 
         function removeItem(itemId) {
             const itemRow = document.querySelector(`[data-item-id="${itemId}"]`);
@@ -390,10 +412,9 @@
                     name: row.querySelector('.item-name').value,
                     metal: row.querySelector('.item-metal').value,
                     purity: row.querySelector('.item-purity').value,
-                    grossWeight: parseFloat(row.querySelector('.item-gross-weight').value),
                     netWeight: parseFloat(row.querySelector('.item-net-weight').value),
                     rate: parseFloat(row.querySelector('.item-rate').value),
-                    making: parseFloat(row.querySelector('.item-making').value)
+                    making: parseFloat(row.querySelector('.item-making').value),
                 });
             });
 
@@ -410,7 +431,12 @@
                 subtotal: parseFloat(document.getElementById('subtotalDisplay').textContent.replace('₹', '')),
                 cgst: parseFloat(document.getElementById('cgstDisplay').textContent.replace('₹', '')),
                 sgst: parseFloat(document.getElementById('sgstDisplay').textContent.replace('₹', '')),
-                grandTotal: parseFloat(document.getElementById('grandTotalDisplay').textContent.replace('₹', ''))
+                grandTotal: parseFloat(document.getElementById('grandTotalDisplay').textContent.replace('₹', '')),
+                advance: parseFloat(document.getElementById('advanceAmount').value) || 0,
+                    returned: parseFloat(document.getElementById('returnAmount').value) || 0,
+                    netPayable: parseFloat(
+                        document.getElementById('netPayableDisplay').textContent.replace('₹','')
+                    )
             };
 
             displayPrintableInvoice(invoiceData);
@@ -444,7 +470,6 @@
                     <td>${item.sno}</td>
                     <td>${item.name}</td>
                     <td>${item.metal} ${item.purity}</td>
-                    <td>${item.grossWeight.toFixed(3)}</td>
                     <td>${item.netWeight.toFixed(3)}</td>
                     <td>${item.rate.toFixed(2)}</td>
                     <td>${item.making.toFixed(2)}</td>
@@ -460,6 +485,10 @@
             document.getElementById('print-cgst').textContent = '₹' + invoiceData.cgst.toFixed(2);
             document.getElementById('print-sgst').textContent = '₹' + invoiceData.sgst.toFixed(2);
             document.getElementById('print-grandTotal').textContent = '₹' + invoiceData.grandTotal.toFixed(2);
+            document.getElementById('print-advance').textContent = '₹' + (invoiceData.advance || 0).toFixed(2);
+            document.getElementById('print-return').textContent = '₹' + (invoiceData.returned || 0).toFixed(2);
+            document.getElementById('print-netPayable').textContent = '₹' + invoiceData.netPayable.toFixed(2);
+
 
             document.querySelector('.container').style.display = 'none';
             document.getElementById('printableInvoice').style.display = 'block';
@@ -478,6 +507,16 @@
         document.getElementById('logoutBtn').addEventListener('click', logout);
 
         createItemRow();
+        const advanceInput = document.getElementById('advanceAmount');
+        const returnInput = document.getElementById('returnAmount');
+
+        if (advanceInput) {
+            advanceInput.addEventListener('input', updateInvoiceSummary);
+        }
+
+        if (returnInput) {
+            returnInput.addEventListener('input', updateInvoiceSummary);
+        }
     </script>
 </body>
 </html>
