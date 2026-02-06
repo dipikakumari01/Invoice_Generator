@@ -293,7 +293,8 @@
 
             metalSelect.addEventListener('change', () => {
             updatePurityOptions(metalSelect, puritySelect);
-                updateRate(metalSelect, puritySelect, rateInput);
+                updateRate(metalSelect, rateInput);
+                updateDefaultMaking(netWeightInput, makingInput, rateInput);
                 updateItemTotal(itemRow);
             });
 
@@ -305,9 +306,13 @@
 
     // ✅ Metal change
             metalSelect.addEventListener('change', () => {
-                updateRate(metalSelect, puritySelect, rateInput);
+                updateRate(metalSelect, rateInput);
                 updateDefaultMaking(netWeightInput, makingInput, rateInput);
                 updateItemTotal(itemRow);
+            });
+            rateInput.addEventListener('input', () => {
+                    updateDefaultMaking(netWeightInput, makingInput, rateInput);
+                    updateItemTotal(itemRow);
             });
 
     // ✅ Manual making override
@@ -359,8 +364,29 @@
             if (settings.makingChargeType === 'per_gram') {
                 making = netWeight * (settings.makingChargeValue || 0);
             } else if (settings.makingChargeType === 'percentage') {    
-                const metalValue = netWeight * rate;
-                making = (metalValue * (settings.makingChargeValue || 0)) / 100;
+                const weight = netWeight;
+                const ratePerGram = rate;
+
+                const makingPercent = settings.makingChargeValue || 0;
+                const gstPercent = settings.gstPercentage || 0;
+
+    // Base metal value
+                const metalValue = ratePerGram * weight;
+
+    // Increase rate by making %
+                const increasedRate = ratePerGram + (ratePerGram * makingPercent / 100);
+
+    // Total value including making
+                const valueWithMaking = increasedRate * weight;
+
+    // Making charges only (excluding metal value)
+                const makingCharges = valueWithMaking - metalValue;
+
+    // GST on making charges
+                const gstOnMaking = (makingCharges * gstPercent) / 100;
+
+    // Final making amount
+                making = makingCharges + gstOnMaking;
             } else if (settings.makingChargeType === 'fixed') {
                 making = settings.makingChargeValue || 0;
             }
