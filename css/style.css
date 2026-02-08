@@ -992,12 +992,12 @@ body {
   }
 
   .invoice-signature {
-    flex: 1;
+    flex: 0 0 auto;
     margin-top: 40px;
   }
 
   .invoice-totals {
-    flex: 1;
+    flex: 0 0 40%;
     max-width: 350px;
   }
 
