@@ -1015,7 +1015,7 @@ body {
 /* ============================= */
 /* MOBILE / TABLET PRINT */
  /* ============================= */
-@media print and (max-width: 768px) {
+@media print and (max-width: 794px) {
 
   @page {
     size: A4;
