@@ -980,7 +980,7 @@ body {
   /* FOOTER LAYOUT (KEY FIX) */
   /* ============================= */
   .invoice-footer {
-    display: flex;
+    display: block;
     justify-content: space-between;
     align-items: flex-start;
     gap: 20px;
@@ -992,8 +992,8 @@ body {
   }
 
   .invoice-signature {
-    flex: 0 0 auto;
-    margin-top: 40px;
+    position: static;
+    margin-top: 30px;
   }
 
   .invoice-totals {
@@ -1011,75 +1011,94 @@ body {
   }
 }
 
-
-/* ============================= */
-/* MOBILE / TABLET PRINT */
- /* ============================= */
-@media print and (max-width: 794px) {
+@media print {
 
   @page {
-    size: A4;
-    margin: 12mm;
+    size: A4 portrait;
+    margin: 10mm;
   }
 
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  /* MAIN CONTAINER */
   .printable-invoice {
-    padding: 10px;
-    font-size: 12px;
+    width: 100%;
+    padding: 6mm;
+    font-size: 30px;
   }
 
-  /* Stack header */
+  /* HEADER */
   .invoice-header {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
     gap: 10px;
+    margin-bottom: 10px;
   }
 
   .invoice-logo {
-    width: 80px;
-    align-self: flex-end;
+    width: 65px;
   }
 
-  /* Stack bill details */
+  /* BILL + INVOICE ROW */
   .bill-invoice-row {
-    flex-direction: column;
-    gap: 15px;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
   }
 
-  /* Stack footer but keep order */
+  /* TABLE */
+  .invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    padding: 4px;
+    font-size: 10px;
+  }
+
+  /* FOOTER */
   .invoice-footer {
-    flex-direction: column;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .payment-details {
+    flex: 1;
+    font-size: 10px;
   }
 
   .invoice-totals {
-    order: 1;
-    max-width: 100%;
+    flex: 0 0 40%;
+    font-size: 10.5px;
   }
 
   .invoice-signature {
-    order: 2;
-    margin-top: 30px;
+    position: static;
+    margin-top: 20px;
   }
 
-  /* Table */
-  .invoice-table th,
-  .invoice-table td {
-    font-size: 11px;
-    padding: 6px;
-  }
-
-  /* Watermark lighter */
+  /* WATERMARK */
   .invoice-watermark {
-    opacity: 0.08;
+    opacity: 0.05;
   }
 
   .watermark-logo {
-    width: 240px;
-    height: 240px;
+    width: 200px;
+    height: 200px;
   }
 
+  /* CONTROL PAGE BREAKS SMARTLY */
   .invoice-header,
   .bill-invoice-row,
-  .invoice-table,
-  .invoice-footer {
+  .invoice-footer,
+  table {
     page-break-inside: avoid;
   }
 }
